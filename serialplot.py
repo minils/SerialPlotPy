@@ -69,20 +69,30 @@ def listen(port, baud, range, display):
             app.closeAllWindows()
             sys.exit(1)
         #print(val)
-        test = val.split("=")
-        if test[0] == "f":
-            freq_zc = test[1]
-            print("F_zc = ", str(freq_zc))
+        if "#" in val:
+            # used for comments
             continue
         d = val.split(",")
         if "x" in display:
-            data_x.append(float(d[0]))
+            try:
+                data_x.append(float(d[0]))
+            except:
+                data_x.append(0);
         if "y" in display:
-            data_y.append(float(d[1]))
+            try:
+                data_y.append(float(d[1]))
+            except:
+                data_y.append(0)
         if "z" in display:
-            data_z.append(float(d[2]))
+            try:
+                data_z.append(float(d[2]))
+            except:
+                data_z.append(0)
         if "i" in display:
-            data_ir.append((float(d[3]) - 40000)/20)
+            try:
+                data_ir.append((float(d[3]) - 40000)/20)
+            except:
+                data_ir.append(0)
         i = i + 1
         n = n + 1
         if i > 10:
