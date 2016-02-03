@@ -152,8 +152,8 @@ def shuffle():
         #print("neeeu")
         time.sleep(1)
 
-def check_connection():
-    if len(data_x) == 0:
+def check_connection(display):
+    if (len(data_x) == 0 and len(data_y) == 0 and len(data_z) == 0 and len(data_ir) == 0):
         print("There is no incoming data. Wrong baud rate?")
         app.closeAllWindows()
         sys.exit(1)
@@ -188,7 +188,7 @@ fourier_thread = Thread(target=calculate_fft)
 fourier_thread.daemon = True
 #fourier_thread.start()
 
-conn_timer = Timer(2.0, check_connection)
+conn_timer = Timer(2.0, check_connection, args=(args.display))
 conn_timer.start() # after 2 seconds the connection is checked
 
 #t = Thread(target=shuffle)
