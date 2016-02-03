@@ -11,15 +11,11 @@ import signal
 import sys
 import time
 
-debug = 1
 pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
 magPlot = pg.plot()
 magPlot.setWindowTitle('live plot from ble')
 magPlot.addLegend()
-#text_freq = pg.TextItem(text="F = ...", color=(0,0,0), fill=(200,200,200))
-#magPlot.addItem(text_freq)
-#text_freq.setPos(100,100)
 
 data_x  = []
 data_y  = []
@@ -28,8 +24,6 @@ data_ir = []
 
 freq = 0.0
 freq_zc = 0.0
-
-quit = False
 
 def signal_handler(signal, frame):
         print ('Good bye!')
@@ -60,7 +54,7 @@ def listen(port, baud, range, display):
     print("[SerialListener] Connected")
     i = 0
     n = 0
-    while not quit:
+    while True:
         try:
             val = ser.readline().decode("utf-8")[:-2]
         except UnicodeDecodeError:
@@ -107,52 +101,7 @@ def listen(port, baud, range, display):
             i = 0
         magPlot.setXRange(n-range, n)
 
-def calculate_fft():
-    print("Started FFT thread")
-    samples = 512
-    freq = 0.0
-    while not (len(data_x) >= samples):
-        time.sleep(1)
-    while True:
-        print("F    = ", str(freq))
-        l = len(data_x)
-        d = data_x[l-samples:l-1]
-        max = d[samples-100]
-        min = d[samples-100]
-        i = 100
-        while i > 1:
-            if d[samples-i] > max:
-                max = d[samples-i]
-            if d[samples-i] < min:
-                min = d[samples-i]
-            i = i - 1
-        if abs(max - min) < 1:
-            freq = 0.0
-            time.sleep(1)
-            continue
-        Fk = np.fft.fft(d) / samples
-        nu = np.fft.fftfreq(samples, 1.0/75)
-        max = 0
-        index = 0
-        for i,v in enumerate(Fk):
-            if (np.abs(v) > max):
-                max = np.abs(v)
-                index = i
-        freq = np.abs(nu[index])
-        time.sleep(1)
-
-def debug(msg):
-    if debug == 1:
-        print(msg)
-
-def shuffle():
-    while True:
-        np.random.shuffle(data)
-        x.setData(data)
-        #print("neeeu")
-        time.sleep(1)
-
-def check_connection(display):
+def check_connection():
     if (len(data_x) == 0 and len(data_y) == 0 and len(data_z) == 0 and len(data_ir) == 0):
         print("There is no incoming data. Wrong baud rate?")
         app.closeAllWindows()
@@ -184,15 +133,9 @@ serial_thread.daemon = True
 debug("Starting serial thread")
 serial_thread.start()
 
-fourier_thread = Thread(target=calculate_fft)
-fourier_thread.daemon = True
-#fourier_thread.start()
-
-conn_timer = Timer(2.0, check_connection, args=(args.display))
-conn_timer.start() # after 2 seconds the connection is checked
-
-#t = Thread(target=shuffle)
-#t.start()
+# after 2 seconds the connection is checked
+conn_timer = Timer(2.0, check_connection)
+conn_timer.start()
 
 if __name__ == '__main__':
     import sys
