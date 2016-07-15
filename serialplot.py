@@ -59,7 +59,8 @@ def listen(port, baud, range, display):
     n = 0
     while True:
         try:
-            val = ser.readline().decode("utf-8")[:-2]
+            val = ser.readline().decode("utf-8").rstrip()
+            print(val)
         except UnicodeDecodeError:
             conn_timer.cancel()
             print("No serial connection. Wrong baud rate?")
