@@ -62,7 +62,7 @@ The data could then be displayed as follows:
 
 ### Todos
 
- - Improve handling of data list
+ - Add csv export
 
 License
 ----

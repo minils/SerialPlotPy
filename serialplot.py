@@ -18,6 +18,7 @@ plt.addLegend()
 
 pause = False
 
+x = []
 data = []
 plots = []
 colors = []
@@ -31,7 +32,6 @@ colors.append(QtGui.QColor(239,239,57));
 
 def signal_handler(signal, frame):
         print ("\nQuitting...")
-        app.closeAllWindows()
         sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -57,10 +57,11 @@ def listen(port, baud, range, display):
     print("[SerialPlotPy] Connected")
     m = 0
     n = 0
+    x = []
     while True:
         try:
             val = ser.readline().decode("utf-8").rstrip()
-            print(val)
+            #print(val)
         except UnicodeDecodeError:
             conn_timer.cancel()
             print("No serial connection. Wrong baud rate?")
@@ -71,6 +72,7 @@ def listen(port, baud, range, display):
             continue
         d = val.split(",")
         i = 0
+        x.append(n)
         while i < len(data):
             try:
                 data[i].append(float(d[i]))
@@ -82,10 +84,17 @@ def listen(port, baud, range, display):
         if m > 10:
             i = 0
             while i < len(data):
-                plots[i].setData(data[i])
+                plots[i].setData(x, data[i])
                 i = i + 1
             m = 0
         plt.setXRange(n-range, n)
+        keep = int(range + range/4)
+        if n > keep:
+            x = x[-keep:] # remove unecessary data
+            i = 0
+            while i < len(data):
+                data[i] = data[i][-keep:]
+                i += 1
 
 def check_connection():
     for i in range(len(data)):
